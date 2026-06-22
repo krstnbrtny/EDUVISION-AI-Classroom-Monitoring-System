@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behavior Analytics Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --success: #10b981;
+  --success-dark: #059669;
+  --bg-body: #f8fafc;
+  --surface: #ffffff;
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  margin: 0;
+  padding: 28px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 24px 0;
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(37,99,235,0.25);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(37,99,235,0.3);
+  color: white;
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 2px 4px rgba(16,185,129,0.25);
+}
+
+.btn-success:hover {
+  background: var(--success-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16,185,129,0.3);
+  color: white;
+}
+
+/* SUMMARY CARDS */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.card-box:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.1);
+}
+
+.card-box h6 {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  margin: 0 0 8px 0;
+}
+
+.card-box h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 4px 0;
+  letter-spacing: -1px;
+}
+
+.card-box p {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* CHART CARDS */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+
+.charts-row-full {
+  margin-bottom: 16px;
+}
+
+.chart-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-box h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 16px 0;
+}
+
+#pieChart,
+#noiseChart {
+  max-height: 280px;
+}
+
+/* TABLE */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-top: 8px;
+}
+
+.table-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 16px 0;
+}
+
+.table-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr)) auto auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.table-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.table-tool label {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.table-tool input,
+.table-tool select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: var(--text-main);
+  background: white;
+}
+
+.table-status {
+  color: var(--text-sub);
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.table-empty {
+  text-align: center;
+  color: var(--text-sub);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+thead tr {
+  background: #1e293b;
+  color: white;
+}
+
+thead th {
+  padding: 12px 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #f1f5f9;
+}
+
+tbody td {
+  padding: 11px 14px;
+  color: var(--text-main);
+}
+
+/* ALERT */
+.alert {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .table-tools { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+}
+
+@media (max-width: 500px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  body { padding: 16px; }
+  .table-tools { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<h2>Behavior Analytics Dashboard</h2>
+
+{% if logs %}
+
+<!-- TOP BUTTONS -->
+<div class="top-bar">
+  <a href="/back_to_dashboard" class="btn btn-primary">Back to Dashboard</a>
+  <a href="{{ url_for('download_behavior_csv') }}" class="btn btn-success">Download CSV</a>
+</div>
+
+<!-- SUMMARY CARDS -->
+{% set total_yawns = logs | sum(attribute='yawning_count') %}
+{% set total_phone = logs | sum(attribute='phone_count') %}
+{% set total_violation = logs | sum(attribute='violation_count') %}
+{% set total_unknown = logs | sum(attribute='unknown_person_count') %}
+{% set total_noise = logs | sum(attribute='noise_level') %}
+{% set total_events = total_yawns + total_phone + total_violation + total_unknown %}
+
+<div class="cards-grid">
+
+  <div class="card-box">
+    <h6>Yawning</h6>
+    <h3>{{ total_yawns }}</h3>
+    <p>{{ (total_yawns/total_events*100)|round(1) if total_events else 0 }}%</p>
+  </div>
+
+  <div class="card-box">
+    <h6>Phone Usage</h6>
+    <h3>{{ total_phone }}</h3>
+    <p>{{ (total_phone/total_events*100)|round(1) if total_events else 0 }}%</p>
+  </div>
+
+  <div class="card-box">
+    <h6>Violations</h6>
+    <h3>{{ total_violation }}</h3>
+    <p>{{ (total_violation/total_events*100)|round(1) if total_events else 0 }}%</p>
+  </div>
+
+  <div class="card-box">
+    <h6>Unknown Persons</h6>
+    <h3>{{ total_unknown }}</h3>
+    <p>{{ (total_unknown/total_events*100)|round(1) if total_events else 0 }}%</p>
+  </div>
+
+</div>
+
+<!-- CHARTS ROW 1 -->
+<div class="charts-row">
+  <div class="chart-box">
+    <h5>Behavior Distribution</h5>
+    <canvas id="pieChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h5>Noise Level Trend</h5>
+    <canvas id="noiseChart"></canvas>
+  </div>
+</div>
+
+<!-- CHARTS ROW 2 -->
+<div class="charts-row-full">
+  <div class="chart-box">
+    <h5>Behavior Timeline</h5>
+    <canvas id="lineChart"></canvas>
+  </div>
+</div>
+
+<!-- LOG TABLE -->
+<div class="table-card">
+  <h4>Behavior Logs</h4>
+  <div class="table-tools">
+    <div class="table-tool">
+      <label for="tableDate">Specific Date</label>
+      <input id="tableDate" type="date">
+    </div>
+    <div class="table-tool">
+      <label for="pageSize">Rows Per Page</label>
+      <select id="pageSize">
+        <option value="25">25</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+        <option value="all">All matching</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-primary" id="prevPage">Previous</button>
+    <button type="button" class="btn btn-primary" id="nextPage">Next</button>
+  </div>
+  <p class="table-status" id="tableStatus"></p>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>Yawns</th>
+        <th>Phone</th>
+        <th>Violation</th>
+        <th>Unknown</th>
+        <th>Noise</th>
+      </tr>
+    </thead>
+    <tbody id="behaviorTableBody">
+      {% for log in logs %}
+      <tr data-id="{{ log['id'] }}" data-date="{{ log['timestamp'][:10] }}">
+        <td>{{ log['id'] }}</td>
+        <td>{{ log['timestamp'] }}</td>
+        <td>{{ log['yawning_count'] }}</td>
+        <td>{{ log['phone_count'] }}</td>
+        <td>{{ log['violation_count'] }}</td>
+        <td>{{ log['unknown_person_count'] }}</td>
+        <td>{{ log['noise_level'] }}</td>
+      </tr>
+      {% endfor %}
+      <tr id="emptyTableRow" hidden>
+        <td colspan="7" class="table-empty">No behavior logs match the selected filters.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="alert">No behavior logs available.</div>
+{% endif %}
+
+<script>
+{% if logs %}
+
+const timestamps  = {{ logs | map(attribute='timestamp') | list | tojson }};
+const yawns       = {{ logs | map(attribute='yawning_count') | list | tojson }};
+const phones      = {{ logs | map(attribute='phone_count') | list | tojson }};
+const violations  = {{ logs | map(attribute='violation_count') | list | tojson }};
+const unknowns    = {{ logs | map(attribute='unknown_person_count') | list | tojson }};
+const noises      = {{ logs | map(attribute='noise_level') | list | tojson }};
+
+const totalYawns     = {{ total_yawns }};
+const totalPhone     = {{ total_phone }};
+const totalViolation = {{ total_violation }};
+const totalUnknown   = {{ total_unknown }};
+
+new Chart(document.getElementById("pieChart"), {
+  type: 'pie',
+  data: {
+    labels: ["Yawning", "Phone Usage", "Violations", "Unknown"],
+    datasets: [{ data: [totalYawns, totalPhone, totalViolation, totalUnknown] }]
+  }
+});
+
+new Chart(document.getElementById("noiseChart"), {
+  type: 'bar',
+  data: {
+    labels: timestamps,
+    datasets: [{ label: "Noise Level", data: noises }]
+  }
+});
+
+new Chart(document.getElementById("lineChart"), {
+  type: 'line',
+  data: {
+    labels: timestamps,
+    datasets: [
+      { label: "Yawns",      data: yawns },
+      { label: "Phone",      data: phones },
+      { label: "Violations", data: violations },
+      { label: "Unknown",    data: unknowns }
+    ]
+  }
+});
+
+{% endif %}
+</script>
+
+<script>
+{% if logs %}
+const tableRows = Array.from(document.querySelectorAll("#behaviorTableBody tr[data-date]"));
+const tableDate = document.getElementById("tableDate");
+const pageSize = document.getElementById("pageSize");
+const prevPage = document.getElementById("prevPage");
+const nextPage = document.getElementById("nextPage");
+const tableStatus = document.getElementById("tableStatus");
+const emptyTableRow = document.getElementById("emptyTableRow");
+let currentPage = 1;
+
+function getFilteredRows() {
+  const dateValue = tableDate.value;
+
+  return tableRows.filter(row => {
+    const matchesDate = !dateValue || row.dataset.date === dateValue;
+    return matchesDate;
+  });
+}
+
+function renderTablePage() {
+  const filteredRows = getFilteredRows();
+  const rowsPerPage = pageSize.value === "all" ? filteredRows.length || 1 : Number(pageSize.value);
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage));
+
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const visibleRows = new Set(filteredRows.slice(start, end));
+
+  tableRows.forEach(row => {
+    row.hidden = !visibleRows.has(row);
+  });
+
+  emptyTableRow.hidden = filteredRows.length !== 0;
+  prevPage.disabled = currentPage === 1;
+  nextPage.disabled = currentPage === totalPages;
+
+  if (filteredRows.length === 0) {
+    tableStatus.textContent = "No matching logs";
+  } else {
+    tableStatus.textContent = `Showing ${start + 1}-${Math.min(end, filteredRows.length)} of ${filteredRows.length} logs`;
+  }
+}
+
+function resetToFirstPage() {
+  currentPage = 1;
+  renderTablePage();
+}
+
+pageSize.addEventListener("change", resetToFirstPage);
+tableDate.addEventListener("change", resetToFirstPage);
+
+prevPage.addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage -= 1;
+    renderTablePage();
+  }
+});
+
+nextPage.addEventListener("click", () => {
+  currentPage += 1;
+  renderTablePage();
+});
+
+renderTablePage();
+{% endif %}
+</script>
+
+</body>
+</html>

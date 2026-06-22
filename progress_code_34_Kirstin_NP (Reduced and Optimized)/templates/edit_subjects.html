@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Subject</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================
+   GLOBAL VARIABLES & RESET
+   ========================================= */
+:root {
+  --primary:      #2563eb;
+  --primary-dark: #1e40af;
+  --bg-body:      #f8fafc;
+  --surface:      #ffffff;
+  --text-main:    #0f172a;
+  --text-sub:     #64748b;
+  --border:       #e2e8f0;
+  --shadow:       0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --radius:       16px;
+  --radius-sm:    10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 16px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   CARD
+   ========================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* =========================================
+   HEADER
+   ========================================= */
+.card-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.card-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.card-header h2 span { color: var(--primary); }
+
+.card-header p {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin-top: 4px;
+}
+
+/* =========================================
+   FORM
+   ========================================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full { grid-column: 1 / -1; }
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.form-group input {
+  padding: 10px 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group input[readonly] {
+  background: #f1f5f9;
+  color: var(--text-sub);
+  cursor: not-allowed;
+}
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+.btn-submit {
+  margin-top: 8px;
+  width: 100%;
+  padding: 11px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-submit:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--primary); }
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 480px) {
+  .card { padding: 1.5rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+
+  <div class="card-header">
+    <h2>Edit <span>Subject</span></h2>
+    <p>Update the subject details below</p>
+  </div>
+
+  <form method="POST">
+    <div class="form-grid">
+
+      <div class="form-group full">
+        <label>Subject Name *</label>
+        <input type="text" name="subjects_name" value="{{ subjects[1] }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Schedule *</label>
+        <input type="text" name="schedule" value="{{ subjects[2] }}" placeholder="e.g., MWF or TTH" required>
+      </div>
+
+      <div class="form-group">
+        <label>Teacher Name *</label>
+        <input type="text" name="teacher_name" value="{{ subjects[3] }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Room Number *</label>
+        <input type="text" name="room_number" value="{{ subjects[4] }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Rows *</label>
+        <input type="number" name="rows" value="{{ subjects[5] }}" min="1" required>
+      </div>
+
+      <div class="form-group">
+        <label>Columns *</label>
+        <input type="number" name="columns" value="{{ subjects[6] }}" min="1" required>
+      </div>
+
+    </div>
+
+    <button type="submit" class="btn-submit">Update Subject</button>
+  </form>
+
+  <a href="{{ url_for('subjects') }}" class="back-link">Back to Subjects List</a>
+
+</div>
+</body>
+</html>

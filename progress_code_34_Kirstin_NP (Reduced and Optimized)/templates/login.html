@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduVision Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================
+       1. GLOBAL VARIABLES & RESET
+       ========================================= */
+    :root {
+      --primary: #2563eb;        
+      --primary-dark: #1e40af;
+      --bg-body: #f8fafc;        
+      --surface: #ffffff;        
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-body);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* =========================================
+       2. LOGIN CARD & HEADER
+       ========================================= */
+    .login-wrapper {
+      background: var(--surface);
+      width: 100%;
+      max-width: 420px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem;
+      border: 1px solid var(--border);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-text {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .login-header h2 {
+      margin: 0;
+      color: var(--text-main);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .login-header p {
+      margin: 0.5rem 0 0;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+
+    /* =========================================
+       3. ROLE TOGGLES
+       ========================================= */
+    .role-toggle {
+      display: flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      padding: 0.6rem;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-weight: 500;
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+      font-weight: 600;
+    }
+
+    /* =========================================
+       4. FORM ELEMENTS
+       ========================================= */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      pointer-events: none;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--text-sub);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .password-toggle:hover { color: var(--primary); }
+
+    /* =========================================
+       5. BUTTONS & LINKS
+       ========================================= */
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover { background: var(--primary-dark); }
+
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .login-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .login-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-footer a:hover { text-decoration: underline; }
+
+    .error-msg {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .login-wrapper { box-shadow: none; border: none; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+
+    <div class="login-header">
+      <div class="brand-text">EduVision</div>
+      <h2 id="welcomeText">Teacher Login</h2>
+      <p>Enter your credentials to access the dashboard.</p>
+    </div>
+
+    <div class="role-toggle">
+      <button class="toggle-btn active" onclick="switchRole('teacher')">Teacher</button>
+      <button class="toggle-btn" onclick="switchRole('admin')">Administrator</button>
+    </div>
+
+    <!-- ================= LOGIN FORM ================= -->
+    <form id="loginForm" method="POST" action="/login">
+      <input type="hidden" id="userRole" name="role" value="teacher">
+
+      {% if error %}
+        <div class="error-msg">{{ error }}</div>
+      {% endif %}
+
+      <div class="form-group">
+        <label id="idLabel">Teacher ID / Username</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <input type="text" id="username" name="username" placeholder="e.g. T-1024" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+
+          <input type="password" id="password" name="password" placeholder="••••••••" required>
+
+          <div class="password-toggle" 
+               onmouseover="showPassword()" 
+               onmouseout="hidePassword()"
+               ontouchstart="showPassword()" 
+               ontouchend="hidePassword()">
+
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 10 Q 12 18 20 10"></path>
+              <path d="M12 15 L 12 18"></path>
+              <path d="M7 13 L 5 16"></path>
+              <path d="M17 13 L 19 16"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Sign In</button>
+
+      <div class="login-footer">
+        <a href="forgot-password.html">Forgot Password?</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function switchRole(role) {
+      const buttons = document.querySelectorAll('.toggle-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById('username').value = "";
+      document.getElementById('password').value = "";
+
+      if(role==='teacher'){
+        buttons[0].classList.add('active');
+        document.getElementById('welcomeText').textContent="Teacher Login";
+        document.getElementById('idLabel').textContent="Teacher ID / Username";
+        document.getElementById('username').placeholder="e.g. T-1024";
+        document.getElementById('userRole').value="teacher";
+      } else {
+        buttons[1].classList.add('active');
+        document.getElementById('welcomeText').textContent="Admin Portal";
+        document.getElementById('idLabel').textContent="Admin Username";
+        document.getElementById('username').placeholder="Enter admin username";
+        document.getElementById('userRole').value="admin";
+      }
+    }
+
+    function showPassword() {
+      const p = document.getElementById('password');
+      const e = document.getElementById('eyeIcon');
+      p.type='text';
+      e.innerHTML=`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                   <circle cx="12" cy="12" r="3"></circle>
+                   <path d="M12 5 L12 2"></path>
+                   <path d="M7 6 L5 3"></path>
+                   <path d="M17 6 L19 3"></path>`;
+    }
+
+    function hidePassword() {
+      const p = document.getElementById('password');
+      const e = document.getElementById('eyeIcon');
+      p.type='password';
+      e.innerHTML=`<path d="M4 10 Q 12 18 20 10"></path>
+                   <path d="M12 15 L12 18"></path>
+                   <path d="M7 13 L5 16"></path>
+                   <path d="M17 13 L19 16"></path>`;
+    }
+  </script>
+
+  <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const errorBox = document.querySelector(".error-msg");
+
+    if (errorBox) {
+      // 🔴 Shake animation
+      const form = document.getElementById("loginForm");
+      form.style.animation = "shake 0.4s";
+
+      // 🔊 Optional: beep sound
+      const audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
+      audio.play().catch(() => {});
+
+      // 🧼 Clear inputs
+      document.getElementById("password").value = "";
+    }
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+  const errorBox = document.querySelector(".error-msg");
+
+  if (errorBox) {
+    const card = document.querySelector(".login-wrapper");
+
+    // 🔴 Shake animation
+    card.style.animation = "shake 0.3s ease";
+
+    // 🔴 Clear password
+    document.getElementById("password").value = "";
+
+    // 🔴 Focus username
+    document.getElementById("username").focus();
+  }
+  });
+
+  // Inject shake animation dynamically
+  const style = document.createElement("style");
+  style.innerHTML = `
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+  `;
+  document.head.appendChild(style);
+  </script>
+
+</body>
+</html>

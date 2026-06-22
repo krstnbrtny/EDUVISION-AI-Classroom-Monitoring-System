@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduVision Dashboard</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#e0f0f8,#f9faff);
+    color: #333;
+    overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:8px; }
+::-webkit-scrollbar-thumb { background:#bbb; border-radius:10px; }
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 240px;
+    height: 100%;
+    background: linear-gradient(180deg,#4e54c8,#8f94fb);
+    color: #fff;
+    padding-top: 25px;
+    overflow-y: auto;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+}
+.sidebar h3 {
+    text-align:center;
+    margin-bottom:30px;
+    font-weight:700;
+    letter-spacing:1px;
+    color: #ffd700;
+}
+.sidebar a {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#f0f0f0;
+    padding:12px 20px;
+    margin:6px 15px;
+    border-radius:12px;
+    text-decoration:none;
+    transition:all 0.3s ease;
+    font-weight:500;
+}
+.sidebar a:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateX(6px);
+    color:#ffd700;
+}
+.sidebar a i { width:20px; text-align:center; }
+
+/* Topbar */
+.topbar {
+    position: fixed;
+    top:0; left:240px;
+    width: calc(100% - 240px);
+    height: 60px;
+    background: linear-gradient(90deg,#6a82fb,#fc5c7d);
+    display:flex;
+    align-items:center;
+    padding:0 25px;
+    font-size:18px;
+    font-weight:600;
+    color:#fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index:999;
+}
+
+/* Main Content */
+.main-content {
+    position:absolute;
+    top:60px; left:240px;
+    width:calc(100% - 240px);
+    bottom:0;
+    padding:25px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
+    grid-auto-rows: minmax(180px,auto);
+    gap:20px;
+    overflow-y:auto;
+}
+
+/* Cards */
+.glass-card {
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:25px;
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.2);
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+    transition:all 0.3s ease;
+}
+.glass-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 15px 30px rgba(0,0,0,0.15);
+}
+
+.glass-card p {
+    margin:0;
+    font-weight:600;
+    font-size:15px;
+    opacity:0.8;
+}
+
+.counter {
+    font-size:2.2rem;
+    font-weight:700;
+    margin-top:10px;
+    color: #6a82fb;
+    text-shadow: 0 0 6px #6a82fb33;
+}
+
+/* Charts */
+canvas {
+    width:100% !important;
+    height:100% !important;
+}
+
+/* Download Section */
+.download-card {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap:20px;
+    flex-wrap:wrap;
+    width: 100%;
+    padding: 20px;
+    background: rgba(255,255,255,0.15);
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.download-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 15px 30px rgba(0,0,0,0.15);
+}
+
+.btn-download {
+    width:220px;
+    padding:12px;
+    border-radius:14px;
+    text-align:center;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    letter-spacing:0.5px;
+    transition:all 0.3s ease;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+.btn-blue { background: linear-gradient(135deg,#6a82fb,#fc5c7d); }
+.btn-blue:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.15); }
+.btn-orange { background: linear-gradient(135deg,#f6d365,#fda085); }
+.btn-orange:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.15); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar { width:70px; }
+    .topbar { left:70px; width:calc(100% - 70px); }
+    .main-content { left:70px; width:calc(100% - 70px); grid-template-columns:1fr; }
+    .sidebar a span { display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h3>EduVision</h3>
+    <a href="/register"><i class="fa fa-user-plus"></i><span>Register Student</span></a>
+    <a href="/register_visitor"><i class="fa fa-user-tag"></i><span>Register Visitor</span></a>
+    <a href="/register_teacher"><i class="fa fa-chalkboard-teacher"></i><span>Register Teacher</span></a>
+    <a href="/recognize"><i class="fa fa-video"></i><span>Start Recognition</span></a>
+    <a href="/manage_registered_students"><i class="fa fa-graduation-cap"></i><span>Students Management</span></a>
+    <a href="/manage_teachers"><i class="fa fa-chalkboard"></i><span>Teacher Management</span></a>
+    <a href="/manage_visitors"><i class="fa fa-users"></i><span>Visitor Management</span></a>
+    <a href="/subjects"><i class="fa fa-calendar-check"></i><span>Subjects</span></a>
+    <a href="/attendance"><i class="fa fa-calendar-check"></i><span>Student Attendance</span></a>
+    <a href="/teacher_attendance"><i class="fa fa-calendar-check"></i><span>Teacher Attendance</span></a>
+    <a href="/logs"><i class="fa fa-chart-line"></i><span>Logs & Reports</span></a>
+    <a href="/behavior_logs"><i class="fa fa-chart-line"></i><span>Behavior Logs & Reports</span></a>
+</div>
+
+<div class="topbar">Dashboard Overview</div>
+
+<div class="main-content">
+
+    <div class="glass-card" style="background:linear-gradient(135deg,#89f7fe,#66a6ff);">
+        <p>Total Registered Students</p>
+        <div id="students-count" class="counter">0</div>
+    </div>
+
+    <div class="glass-card" style="background:linear-gradient(135deg,#fbc2eb,#a18cd1);">
+        <p>Total Registered Visitors</p>
+        <div id="visitors-count" class="counter">0</div>
+    </div>
+
+    <div class="glass-card" style="background:linear-gradient(135deg,#cfd9df,#e2ebf0);">
+        <p>Total Registered Teachers</p>
+        <div id="teachers-count" class="counter">0</div>
+    </div>
+
+    <div class="glass-card" style="background:linear-gradient(135deg,#fddb92,#d1fdff);">
+        <p>Total Subjects</p>
+        <div id="subjects-count" class="counter">0</div>
+    </div>
+
+    <div class="glass-card" style="height:380px;background:linear-gradient(135deg,#89f7fe,#66a6ff);">
+        <h5>Attendance Analytics</h5>
+        <canvas id="attendanceChart"></canvas>
+    </div>
+
+    <div class="glass-card" style="height:380px;background:linear-gradient(135deg,#fbc2eb,#a18cd1);">
+        <h5>Users Distribution</h5>
+        <canvas id="userDistributionChart"></canvas>
+    </div>
+
+    <div class="download-card">
+        <a href="/download/attendance_csv" class="btn-download btn-blue">Attendance CSV</a>
+        <a href="/download/visitor_logs_csv" class="btn-download btn-orange">Visitor Logs</a>
+    </div>
+
+</div>
+
+<script>
+const totalStudents = Number("{{ total_faces | default(0) }}");
+const totalVisitors = Number("{{ total_visitors | default(0) }}");
+const totalTeachers = Number("{{ total_teachers | default(0) }}");
+const totalSubjects = Number("{{ total_subjects | default(0) }}");
+
+function animateCounter(id,target){
+    let count=0;
+    const step=Math.max(1,Math.ceil(target/50));
+    const interval=setInterval(()=>{
+        count+=step;
+        if(count>=target){count=target; clearInterval(interval);}
+        document.getElementById(id).innerText=count;
+    },20);
+}
+animateCounter("students-count", totalStudents);
+animateCounter("visitors-count", totalVisitors);
+animateCounter("teachers-count", totalTeachers);
+animateCounter("subjects-count", totalSubjects);
+
+const attendanceLabels = JSON.parse('{{ attendance_dates | default("[]") | safe }}');
+const attendanceData = JSON.parse('{{ attendance_counts | default("[]") | safe }}');
+
+new Chart(document.getElementById("attendanceChart"),{
+    type:"line",
+    data:{
+        labels:attendanceLabels,
+        datasets:[{
+            label:"Attendance Count",
+            data:attendanceData,
+            borderWidth:2,
+            tension:0.3,
+            fill:true,
+            backgroundColor:"rgba(102,204,255,0.3)",
+            borderColor:"#3399ff",
+            pointBackgroundColor:"#3399ff",
+            pointHoverRadius:6,
+            pointRadius:4
+        }]
+    },
+    options:{responsive:true,maintainAspectRatio:false}
+});
+
+new Chart(document.getElementById("userDistributionChart"),{
+    type:"doughnut",
+    data:{
+        labels:["Students","Visitors","Teachers"],
+        datasets:[{
+            data:[totalStudents,totalVisitors,totalTeachers],
+            backgroundColor:["#89f7fe","#fbc2eb","#cfd9df"],
+            hoverOffset:10
+        }]
+    },
+    options:{responsive:true,maintainAspectRatio:false}
+});
+</script>
+
+</body>
+</html>

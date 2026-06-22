@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Attendance</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+<style>
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --success: #10b981;
+  --success-dark: #059669;
+  --bg-body: #f8fafc;
+  --surface: #ffffff;
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  padding: 28px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= HEADER ================= */
+.page-header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+
+.form-select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--text-main);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(37,99,235,0.25);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(37,99,235,0.3);
+  color: white;
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 2px 4px rgba(16,185,129,0.25);
+}
+
+.btn-success:hover {
+  background: var(--success-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16,185,129,0.3);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.btn-secondary:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* ================= LEGEND ================= */
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.legend-present {
+  color: var(--success);
+  background: rgba(16,185,129,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.legend-absent {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* ================= TABLE WRAPPER ================= */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  overflow-x: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+table {
+  table-layout: fixed;
+  white-space: nowrap;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 9px 10px;
+}
+
+thead tr {
+  background: #1e293b;
+  color: white;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-weight: 600;
+  font-size: 0.82rem;
+  background: #1e293b;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* ================= STATUS ================= */
+.present {
+  color: var(--success);
+  font-weight: 600;
+  background: rgba(16,185,129,0.1);
+  border-radius: 6px;
+}
+
+.absent {
+  color: #ef4444;
+  font-weight: 600;
+  background: rgba(239,68,68,0.1);
+  border-radius: 6px;
+}
+
+/* ================= CELLS ================= */
+.attendance-cell {
+  cursor: pointer;
+  background: #f1f5f9;
+  transition: 0.2s;
+}
+
+.attendance-cell:hover {
+  transform: scale(1.05);
+}
+
+.attendance-cell.future {
+  cursor: not-allowed;
+  background: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.attendance-cell.locked {
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+/* ================= ANIMATION ================= */
+.updated {
+  animation: highlight 1.5s ease;
+}
+
+@keyframes highlight {
+  from { background: var(--success); }
+  to   { background: inherit; }
+}
+
+/* DataTables overrides */
+.dataTables_filter input {
+  font-family: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.dataTables_filter input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+select[name="year"] {
+  scrollbar-width: thin;
+  overflow-y: scroll;
+}
+
+select[name="year"] option {
+  padding: 4px 8px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h2>Teacher Attendance – {{ now.strftime("%B %Y") }}</h2>
+
+  <div class="controls">
+
+    <form method="GET" action="/teacher_attendance" style="display:flex; gap:8px; flex-wrap:nowrap; align-items:center;">
+
+      <select name="month" class="form-select">
+        {% for m in range(1,13) %}
+        <option value="{{m}}" {% if m==selected_month %}selected{% endif %}>
+          {{ datetime(2000,m,1).strftime("%B") }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <select name="year" class="form-select" size="1" style="max-height: 120px; overflow-y: auto;">
+        {% for y in range(2015,now.year+2) %}
+        <option value="{{y}}" {% if y==selected_year %}selected{% endif %}>
+          {{y}}
+        </option>
+        {% endfor %}
+        </select>
+
+      <select name="subject" class="form-select">
+        <option value="">All Subjects</option>
+        {% for subj in subjects %}
+        <option value="{{subj}}" {% if subj==selected_subject %}selected{% endif %}>
+          {{subj}}
+        </option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-primary">View</button>
+
+    </form>
+
+    <a href="/back_to_dashboard" class="btn btn-secondary">Dashboard</a>
+    <button id="downloadCSV" class="btn btn-success">Download CSV</button>
+
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-present">Present</span>
+  <span class="legend-absent">Absent</span>
+</div>
+
+<!-- TABLE -->
+<div class="table-card">
+  <table id="attendanceTable" class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th style="min-width:180px;">Teacher</th>
+        {% for date in month_dates %}
+        <th style="min-width:60px;">
+          {{date.strftime("%a")}}<br>{{date.strftime("%d")}}
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for teacher in attendance %}
+      <tr>
+        <td class="text-start">
+          <strong>{{teacher.teacher_id}}</strong><br>
+          {{teacher.name}}
+        </td>
+        {% for date in month_dates %}
+        {% set day_str = date.strftime("%Y-%m-%d") %}
+        {% set status = teacher.attendance[day_str] %}
+        <td class="attendance-cell {% if status=='Present' %}present{% else %}absent{% endif %}"
+            data-teacher="{{teacher.teacher_id}}"
+            data-date="{{day_str}}">
+          {{status}}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>const user_role = "{{ user_role }}";</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+<script>
+$(document).ready(function(){
+
+  var table = $('#attendanceTable').DataTable({
+    scrollX: true,
+    paging: false,
+    searching: true,
+    ordering: true,
+    fixedHeader: true,
+    info: false,
+    dom: 'Bfrtip',
+    buttons: [{
+      extend: 'csvHtml5',
+      title: 'Teacher_Attendance_{{ selected_subject if selected_subject else "AllSubjects" }}_{{ now.strftime("%B_%Y") }}',
+      className: 'd-none'
+    }]
+  });
+
+  $('#downloadCSV').click(function(){
+    table.button('.buttons-csv').trigger();
+  });
+
+  const statuses = ["Present", "Absent"];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  $('.attendance-cell').each(function(){
+    const cellDateStr = $(this).data('date');
+    if(cellDateStr){
+      const cellDate = new Date(cellDateStr);
+      cellDate.setHours(0,0,0,0);
+      if(cellDate > today){
+        $(this).addClass('future');
+        $(this).text('');
+      }
+    }
+    if(user_role !== "admin"){
+      $(this).addClass('locked');
+    }
+  });
+
+  $('.attendance-cell').click(function(){
+    if(user_role !== "admin") return;
+    const cell = $(this);
+    if(cell.hasClass('future')) return;
+
+    let current = cell.text().trim();
+    let index = statuses.indexOf(current);
+    let next_status = statuses[(index + 1) % statuses.length];
+
+    const teacher_id = cell.data('teacher');
+    const date = cell.data('date');
+
+    $.ajax({
+      url: "/update_attendance",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ student_id: teacher_id, date: date, status: next_status }),
+      success: function(res){
+        if(res.success){ location.reload(); }
+        else { alert("Update failed"); }
+      }
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Face Recognition - Single Camera</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* GLOBAL VARIABLES */
+
+:root{
+--primary:#2563eb;
+--primary-dark:#1e40af;
+--bg-body:#f8fafc;
+--surface:#ffffff;
+--text-main:#0f172a;
+--text-sub:#64748b;
+--border:#e2e8f0;
+--shadow:0 4px 6px rgba(0,0,0,.08);
+--shadow-hover:0 10px 20px rgba(37,99,235,.15);
+--radius:16px;
+--radius-sm:10px;
+}
+
+/* RESET */
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+/* BODY */
+
+body{
+font-family:'Poppins',sans-serif;
+background:var(--bg-body);
+color:var(--text-main);
+min-height:100vh;
+padding:40px 48px;
+text-align:center;
+animation:fadeIn .4s ease-out;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+/* HEADER */
+
+h2{
+font-size:1.5rem;
+font-weight:600;
+margin-bottom:28px;
+letter-spacing:-.4px;
+}
+
+/* STATS PANELS */
+
+.stats-container{
+display:flex;
+justify-content:center;
+gap:16px;
+margin-bottom:28px;
+flex-wrap:wrap;
+}
+
+.stat-box{
+background:var(--surface);
+border-radius:var(--radius);
+border:1px solid var(--border);
+box-shadow:var(--shadow);
+padding:20px 16px;
+min-width:130px;
+flex:1;
+max-width:180px;
+transition:.25s;
+}
+
+.stat-box:hover{
+transform:translateY(-4px);
+box-shadow:var(--shadow-hover);
+}
+
+.stat-title{
+font-size:.78rem;
+font-weight:500;
+color:var(--text-sub);
+text-transform:uppercase;
+letter-spacing:.5px;
+margin-bottom:10px;
+}
+
+.stat-value{
+font-size:2rem;
+font-weight:700;
+color:var(--primary);
+}
+
+/* SUBJECT DROPDOWN */
+
+.subjects-container{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+margin-bottom:28px;
+}
+
+.subjects-container label{
+font-size:.9rem;
+font-weight:500;
+}
+
+.subjects-container select{
+padding:10px 16px;
+font-size:.9rem;
+font-family:'Poppins',sans-serif;
+border-radius:var(--radius-sm);
+border:1px solid var(--border);
+background:var(--surface);
+outline:none;
+cursor:pointer;
+transition:.2s;
+min-width:200px;
+}
+
+.subjects-container select:focus{
+border-color:var(--primary);
+box-shadow:0 0 0 3px rgba(37,99,235,.1);
+}
+
+/* CAMERA GRID */
+
+.camera-container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(560px,1fr));
+gap:20px;
+max-width:860px;
+margin:0 auto 28px;
+}
+
+.camera-box{
+position:relative;
+background:var(--surface);
+padding:16px;
+border-radius:var(--radius);
+border:1.5px solid var(--border);
+box-shadow:var(--shadow);
+cursor:pointer;
+transition:.3s;
+}
+
+.camera-box.active{
+border-color:var(--primary);
+box-shadow:0 0 0 3px rgba(37,99,235,.15);
+}
+
+.camera-box.face-detected{
+border-color:#22c55e;
+box-shadow:0 0 0 3px rgba(34,197,94,.2);
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+50%{box-shadow:0 0 0 6px rgba(34,197,94,.35);}
+100%{box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+}
+
+.camera-title{
+font-size:.9rem;
+font-weight:600;
+margin:8px 0 10px;
+}
+
+.camera-box img{
+width:100%;
+border-radius:var(--radius-sm);
+display:block;
+}
+
+/* STATUS BADGE */
+
+.status{
+position:absolute;
+top:14px;
+right:14px;
+padding:4px 10px;
+font-size:.7rem;
+font-weight:600;
+border-radius:20px;
+color:white;
+letter-spacing:.4px;
+text-transform:uppercase;
+}
+
+.online{background:#22c55e;}
+.offline{background:#ef4444;}
+
+/* BUTTON */
+
+button{
+padding:.85rem 2rem;
+background:var(--primary);
+color:white;
+border:none;
+border-radius:var(--radius-sm);
+font-family:'Poppins',sans-serif;
+font-size:.95rem;
+font-weight:500;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+background:var(--primary-dark);
+transform:translateY(-1px);
+}
+
+button:active{
+transform:translateY(0);
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Real-Time Face Recognition (1 Camera)</h2>
+
+
+<!-- STATS -->
+
+<div class="stats-container">
+
+<div class="stat-box">
+<div class="stat-title">Yawning</div>
+<div class="stat-value" id="yawning">0</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-title">Using Phone</div>
+<div class="stat-value" id="using_phone">0</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-title">Violation Gesture</div>
+<div class="stat-value" id="violation_gesture">0</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-title">Unknown Person</div>
+<div class="stat-value" id="unknown_person">0</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-title">Noise Level</div>
+<div class="stat-value" id="noise_level">0</div>
+</div>
+
+</div>
+
+
+<!-- SUBJECT DROPDOWN -->
+
+<div class="subjects-container">
+
+<label>Select subjects:</label>
+
+<select id="subjectsDropdown" onchange="setSubjectsOnly()">
+
+<option value="">-- Select subjects --</option>
+
+</select>
+
+</div>
+
+
+<!-- CAMERA -->
+
+<div class="camera-container">
+
+<div class="camera-box" onclick="activateCamera(this)">
+
+<span class="status offline">OFFLINE</span>
+
+<div class="camera-title">Camera 1</div>
+
+<img src="{{ url_for('recognize_feed', cam_id=0) }}" onclick="fullscreen(event,this)">
+
+</div>
+
+</div>
+
+
+<a href="/back_to_dashboard">
+
+<button>⬅ Back to Dashboard</button>
+
+</a>
+
+
+<script>
+
+/* FULLSCREEN */
+
+function fullscreen(event,img){
+event.stopPropagation();
+if(img.requestFullscreen)
+img.requestFullscreen();
+}
+
+
+/* ACTIVE CAMERA */
+
+function activateCamera(box){
+document.querySelectorAll(".camera-box")
+.forEach(b=>b.classList.remove("active"));
+box.classList.add("active");
+}
+
+
+/* FACE DETECTED */
+
+function setFaceDetected(cam,detected){
+const box=document.querySelectorAll(".camera-box")[cam];
+if(!box)return;
+detected?box.classList.add("face-detected"):box.classList.remove("face-detected");
+}
+
+
+/* LOAD SUBJECTS */
+
+fetch("/get_subjects")
+.then(res=>res.json())
+.then(data=>{
+const dropdown=document.getElementById("subjectsDropdown");
+
+dropdown.innerHTML=`<option value="">-- Select subjects --</option>`;
+
+data.forEach(sub=>{
+const option=document.createElement("option");
+option.value=sub.name;
+option.textContent=sub.name;
+dropdown.appendChild(option);
+});
+});
+
+
+/* SUBJECT SELECT */
+
+function setSubjectsOnly(){
+
+let subjects=document.getElementById("subjectsDropdown").value;
+
+if(!subjects)subjects="None";
+
+fetch("/set_subjects",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({subjects:subjects})
+
+});
+
+}
+
+
+/* CAMERA STATUS */
+
+function markOffline(img){
+
+const status=img.closest(".camera-box").querySelector(".status");
+
+status.textContent="Offline";
+
+status.className="status offline";
+
+}
+
+function markOnline(img){
+
+const status=img.closest(".camera-box").querySelector(".status");
+
+status.textContent="Online";
+
+status.className="status online";
+
+}
+
+document.querySelectorAll(".camera-box img")
+
+.forEach(img=>{
+
+img.onerror=()=>markOffline(img);
+
+img.onload=()=>markOnline(img);
+
+});
+
+
+/* FAST REALTIME STATS */
+
+function updateBehaviorStats(){
+
+fetch("/api/behavior_stats")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+document.getElementById("yawning").textContent=data.yawning||0;
+
+document.getElementById("using_phone").textContent=data.using_phone||0;
+
+document.getElementById("violation_gesture").textContent=data.violation_gesture||0;
+
+document.getElementById("unknown_person").textContent=data.unknown_person||0;
+
+document.getElementById("noise_level").textContent=data.noise_level||0;
+
+});
+
+}
+
+setInterval(updateBehaviorStats,500);
+
+updateBehaviorStats();
+
+</script>
+
+</body>
+</html>

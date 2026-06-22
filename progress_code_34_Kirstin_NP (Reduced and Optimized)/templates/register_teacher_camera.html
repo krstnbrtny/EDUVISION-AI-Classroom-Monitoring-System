@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capture Teacher Face</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --bg-body: #f8fafc;
+  --surface: #ffffff;
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  margin: 0;
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 24px 0;
+}
+
+/* CAMERA */
+.camera-container {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  background: var(--surface);
+  transition: box-shadow 0.2s ease;
+}
+
+.camera-container:hover {
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+}
+
+.camera-container img {
+  display: block;
+  width: 640px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* BUTTONS */
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  background: var(--surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.btn-outline:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  transform: translateY(-2px);
+}
+
+/* PROGRESS */
+#progress {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 24px;
+  box-shadow: var(--shadow);
+  margin-top: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<h2>Capture Teacher Face</h2>
+
+<div class="camera-container">
+  <img src="{{ url_for('register_teacher_feed') }}" alt="Camera Feed">
+</div>
+
+<div class="buttons">
+  <button class="btn btn-primary" onclick="focusFace()">Focus Face</button>
+  <button class="btn btn-primary" id="saveBtn">Capture Frame</button>
+  <a href="/back_to_dashboard" class="btn btn-outline">Back</a>
+</div>
+
+<div id="progress">Captured: 0 / 10 frames</div>
+
+<script>
+
+let captured = 0;
+const maxFrames = 10;
+let currentFace = 0;
+
+function focusFace() {
+  currentFace++;
+  if (currentFace > 2) currentFace = 0;
+
+  fetch(`/select_face/${currentFace}`)
+    .then(res => res.text())
+    .then(() => console.log("Focused face:", currentFace))
+    .catch(err => console.error(err));
+}
+
+document.getElementById("saveBtn").addEventListener("click", function () {
+  fetch("/save_teacher_face", { method: "POST" })
+    .then(response => {
+      captured++;
+      const progressEl = document.getElementById("progress");
+
+      if (captured >= maxFrames) {
+        progressEl.innerText = "Stable embedding saved!";
+        setTimeout(() => { window.location.href = "/back_to_dashboard"; }, 1000);
+        captured = 0;
+      } else {
+        progressEl.innerText = `Captured: ${captured} / ${maxFrames} frames`;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error capturing frame: " + err);
+    });
+});
+
+</script>
+
+</body>
+</html>

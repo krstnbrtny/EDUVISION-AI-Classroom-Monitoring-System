@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduVision Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* ================= THEME ================= */
+:root {
+  --primary:       #2563eb;
+  --primary-dark:  #1e40af;
+  --primary-light: #eff6ff;
+  --bg-body:       #f8fafc;
+  --surface:       #ffffff;
+  --text-main:     #0f172a;
+  --text-sub:      #64748b;
+  --border:        #e2e8f0;
+  --shadow:        0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-md:     0 10px 24px -4px rgb(37 99 235 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.06);
+  --radius:        16px;
+  --radius-sm:     10px;
+  --sidebar-w:     248px;
+  --topbar-h:      64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100%;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 24px;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.brand-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.4px;
+}
+
+.nav-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-sub);
+  padding: 0 20px;
+  margin: 8px 0 4px;
+}
+
+.sidebar a.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-sub);
+  padding: 9px 14px;
+  margin: 2px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+}
+
+.sidebar a.nav-link:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.sidebar a.nav-link.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nav-link i {
+  width: 18px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.user-name  { font-size: 0.82rem; font-weight: 600; color: var(--text-main); }
+.user-role  { font-size: 0.72rem; color: var(--text-sub); }
+
+/* ================= TOPBAR ================= */
+.topbar {
+  position: fixed;
+  left: var(--sidebar-w);
+  top: 0;
+  width: calc(100% - var(--sidebar-w));
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  z-index: 99;
+}
+
+.topbar-left h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.topbar-left p {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  text-decoration: none;
+  font-size: 0.83rem;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--topbar-h);
+  padding: 28px;
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ================= SECTION HEADING ================= */
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-sub);
+  margin: 0 0 14px;
+}
+
+/* ================= STAT CARDS ================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: fadeUp 0.4s ease both;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.10s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+.stat-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.stat-body { display: flex; flex-direction: column; }
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.1;
+}
+
+/* ================= CHARTS GRID ================= */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  animation: fadeUp 0.4s ease both;
+  animation-delay: 0.25s;
+}
+
+.chart-card:nth-child(2) { animation-delay: 0.30s; }
+
+.chart-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.chart-card-header h5 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.chart-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+/* ================= DOWNLOAD CARD ================= */
+.download-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.4s ease both;
+  animation-delay: 0.35s;
+}
+
+.download-info h5 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 3px;
+}
+
+.download-info p {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.download-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-download {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: 0.83rem;
+  font-weight: 500;
+  transition: background 0.18s, transform 0.18s;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-download:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-download.outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn-download.outline:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .topbar { left: 0; width: 100%; }
+  .main-content { margin-left: 0; padding: 20px 16px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a href="/" class="sidebar-brand">
+    <div class="brand-icon"><i class="fa fa-graduation-cap"></i></div>
+    <span class="brand-label">EduVision</span>
+  </a>
+
+  <span class="nav-section-label">Navigation</span>
+  <a href="/attendance"         class="nav-link"><i class="fa fa-calendar-check"></i><span>Student Attendance</span></a>
+  <a href="/teacher_attendance" class="nav-link"><i class="fa fa-chalkboard-teacher"></i><span>Teacher Attendance</span></a>
+  <a href="/logs"               class="nav-link"><i class="fa fa-chart-line"></i><span>Logs &amp; Reports</span></a>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar"><i class="fa fa-user"></i></div>
+      <div class="user-info">
+        <span class="user-name">Administrator</span>
+        <span class="user-role">Admin Account</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <div class="topbar-left">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back — here's what's happening today.</p>
+  </div>
+  <div class="topbar-right">
+    <a href="/logout" class="logout-btn">
+      <i class="fa fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="main-content">
+
+  <!-- Stat Cards -->
+  <p class="section-title">Overview</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa fa-user-graduate"></i></div>
+      <div class="stat-body">
+        <span class="stat-label">Total Students</span>
+        <span id="students-count" class="stat-value">0</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa fa-person-walking"></i></div>
+      <div class="stat-body">
+        <span class="stat-label">Total Visitors</span>
+        <span id="visitors-count" class="stat-value">0</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa fa-chalkboard-teacher"></i></div>
+      <div class="stat-body">
+        <span class="stat-label">Total Teachers</span>
+        <span id="teachers-count" class="stat-value">0</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa fa-book-open"></i></div>
+      <div class="stat-body">
+        <span class="stat-label">Total Subjects</span>
+        <span id="subjects-count" class="stat-value">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <p class="section-title">Analytics</p>
+  <div class="charts-grid">
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5>Attendance Analytics</h5>
+        <span class="chart-badge">This Month</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="attendanceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5>Users Distribution</h5>
+      </div>
+      <div class="chart-container">
+        <canvas id="userDistributionChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Downloads -->
+  <p class="section-title">Export Data</p>
+  <div class="download-card">
+    <div class="download-info">
+      <h5>Download Reports</h5>
+      <p>Export attendance and visitor data as CSV files.</p>
+    </div>
+    <div class="download-actions">
+      <a href="/download/attendance_csv" class="btn-download">
+        <i class="fa fa-download"></i> Attendance CSV
+      </a>
+      <a href="/download/visitor_logs_csv" class="btn-download outline">
+        <i class="fa fa-download"></i> Visitor Logs
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+
+const totalStudents = Number("{{ total_faces | default(0) }}");
+const totalVisitors = Number("{{ total_visitors | default(0) }}");
+const totalTeachers = Number("{{ total_teachers | default(0) }}");
+const totalSubjects = Number("{{ total_subjects | default(0) }}");
+
+function animateCounter(id, target) {
+  let count = 0;
+  const step = Math.max(1, Math.ceil(target / 50));
+  const interval = setInterval(() => {
+    count += step;
+    if (count >= target) { count = target; clearInterval(interval); }
+    document.getElementById(id).innerText = count.toLocaleString();
+  }, 20);
+}
+
+animateCounter("students-count", totalStudents);
+animateCounter("visitors-count", totalVisitors);
+animateCounter("teachers-count", totalTeachers);
+animateCounter("subjects-count", totalSubjects);
+
+const attendanceLabels = JSON.parse('{{ attendance_dates  | default("[]") | safe }}');
+const attendanceData   = JSON.parse('{{ attendance_counts | default("[]") | safe }}');
+
+Chart.defaults.font.family = "'Poppins', sans-serif";
+Chart.defaults.font.size = 12;
+
+/* LINE */
+new Chart(document.getElementById("attendanceChart"), {
+  type: "line",
+  data: {
+    labels: attendanceLabels,
+    datasets: [{
+      label: "Attendance",
+      data: attendanceData,
+      borderColor: "#2563eb",
+      backgroundColor: "rgba(37,99,235,0.08)",
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: "#2563eb",
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { color: "#64748b" } },
+      x: { grid: { display: false }, ticks: { color: "#64748b" } }
+    }
+  }
+});
+
+/* DOUGHNUT */
+new Chart(document.getElementById("userDistributionChart"), {
+  type: "doughnut",
+  data: {
+    labels: ["Students", "Visitors", "Teachers"],
+    datasets: [{
+      data: [totalStudents, totalVisitors, totalTeachers],
+      backgroundColor: ["#2563eb", "#10b981", "#64748b"],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "65%",
+    plugins: {
+      legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
